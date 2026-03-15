@@ -3190,5 +3190,128 @@ if ('serviceWorker' in navigator) {
   }).catch(err => console.log('SW error:', err));
 }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  // 2. Configuración de conexión
+  const SUPABASE_URL = 'TU_SUPABASE_URL';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxZ3hyaWVtbWF1Y3hzaHJpYXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1NjI4NjUsImV4cCI6MjA4OTEzODg2NX0.SWTX-hh_5-G0UiCce-svN6-acUFxbbu7rqUiXKS69mQ';
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // 3. Función para PUBLICAR una propiedad (con foto)
+  async function publicarEnSupabase() {
+    const btn = document.querySelector('.btn-post-submit'); // El botón de tu formulario
+    const fileInput = document.getElementById('post-images'); // Tu input de fotos
+    
+    // Obtenemos los valores de tus inputs actuales
+    const titulo = document.getElementById('post-title').value;
+    const precio = document.getElementById('post-price').value;
+    const moneda = document.getElementById('post-currency').value;
+    const ubicacion = document.getElementById('post-location').value;
+    const desc = document.getElementById('post-desc').value;
+    const tipo = document.querySelector('input[name="post-type"]:checked')?.value || 'Venta';
+
+    if (!titulo || !precio || fileInput.files.length === 0) {
+      alert("Por favor, llena los campos y selecciona al menos una foto.");
+      return;
+    }
+
+    try {
+      btn.innerText = "Subiendo...";
+      btn.disabled = true;
+
+      // A. SUBIR LA FOTO AL STORAGE
+      const file = fileInput.files[0];
+      const fileName = `${Date.now()}_${file.name}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('fotos-casas')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // B. OBTENER EL ENLACE PÚBLICO DE LA FOTO
+      const { data: urlData } = supabase.storage
+        .from('fotos-casas')
+        .getPublicUrl(fileName);
+      
+      const fotoUrl = urlData.publicUrl;
+
+      // C. GUARDAR EN LA TABLA 'propiedades'
+      const { error: dbError } = await supabase
+        .from('propiedades')
+        .insert([{
+          titulo: titulo,
+          precio: parseFloat(precio),
+          moneda: moneda,
+          ubicacion: ubicacion,
+          descripcion: desc,
+          tipo_operacion: tipo,
+          imagen_url: fotoUrl
+        }]);
+
+      if (dbError) throw dbError;
+
+      alert("¡Anuncio publicado con éxito en CasaCuba!");
+      location.reload(); // Recargar para limpiar y ver cambios
+
+    } catch (err) {
+      console.error("Error completo:", err);
+      alert("Error: " + err.message);
+    } finally {
+      btn.innerText = "Publicar Anuncio";
+      btn.disabled = false;
+    }
+  }
+
+  // 4. Función para CARGAR las propiedades en el Home
+  async function cargarPropiedades() {
+    const { data: propiedades, error } = await supabase
+      .from('propiedades')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Error cargando:", error);
+      return;
+    }
+
+    const grid = document.querySelector('.listings-grid');
+    if (!grid) return;
+
+    // Limpiamos los anuncios de ejemplo que tienes en el HTML
+    grid.innerHTML = '';
+
+    // Dibujamos los anuncios reales de la base de datos
+    propiedades.forEach(p => {
+      grid.innerHTML += `
+        <div class="card" onclick="showScreen('property-detail')">
+          <img src="${p.imagen_url}" alt="Casa">
+          <div class="card-info">
+            <div class="card-price">${p.moneda} ${p.precio.toLocaleString()}</div>
+            <div class="card-title">${p.titulo}</div>
+            <div class="card-location">📍 ${p.ubicacion}</div>
+            <div class="card-badges">
+               <span class="badge">${p.tipo_operacion}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  // 5. Asignar la función al botón de tu formulario
+  // Buscamos el botón de "Publicar Anuncio" y le damos la orden
+  document.addEventListener('DOMContentLoaded', () => {
+     const btnSubmit = document.querySelector('.btn-post-submit');
+     if(btnSubmit) {
+        btnSubmit.onclick = (e) => {
+          e.preventDefault();
+          publicarEnSupabase();
+        };
+     }
+     cargarPropiedades(); // Cargar anuncios al abrir la app
+  });
+</script>
 </body>
 </html>
