@@ -3192,11 +3192,15 @@ if ('serviceWorker' in navigator) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  // 2. Configuración de conexión
-  const SUPABASE_URL = 'TU_SUPABASE_URL';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxZ3hyaWVtbWF1Y3hzaHJpYXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1NjI4NjUsImV4cCI6MjA4OTEzODg2NX0.SWTX-hh_5-G0UiCce-svN6-acUFxbbu7rqUiXKS69mQ';
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// 1. TUS DATOS REALES DE CONEXIÓN
+const SUPABASE_URL = 'https://cqgxriemmauctxshriasj.supabase.co';
+const SUPABASE_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxZ3hyaWVtbWF1Y3hzaHJpYXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1NjI4NjUsImV4cCI6MjA4OTEzODg2NX0.SWTX-hh_5-G0UiCce-svN6-acUFxbbu7rqUiXKS69mQ';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // 3. Función para PUBLICAR una propiedad (con foto)
   async function publicarEnSupabase() {
