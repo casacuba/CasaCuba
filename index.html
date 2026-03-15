@@ -839,11 +839,12 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
     <div id="dyn-fields"></div>
 
     <!-- Fotos -->
-    <div class="photo-drop" onclick="addPhoto()" id="photo-drop-zone">
-      <div class="pd-icon">📷</div>
-      <p>Toca para agregar fotos de la propiedad</p>
-      <p style="font-size:.72rem;margin-top:.25rem">Mínimo 1 foto requerida <span style="color:#e05050">*</span> · Máximo 10 fotos</p>
+    <div class="photo-drop" onclick="document.getElementById('post-images').click()">
+    <div class="pd-icon">📸</div>
+    <p>Toca para agregar fotos de la propiedad</p>
+    <input type="file" id="post-images" accept="image/*" style="display:none">
     </div>
+
     <div class="photo-prev" id="photo-prev"></div>
 
     <!-- Campos base (siempre visibles) -->
